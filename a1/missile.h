@@ -29,7 +29,7 @@ class Missile {
   void draw( GPUProgram *gpuProgram) {
 
     vec3 verts[2] = {
-      vec3( pos0.x, pos0.y, 0 ),
+      (vec3( pos1.x, pos1.y, 0 )-vec3(pos0.x,pos0.y,0)).normalize(),
       vec3( pos1.x, pos1.y, 0 )
     };
 

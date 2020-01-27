@@ -8,6 +8,8 @@
 
 // Draw each of the objects in the world
 
+float PROB_OF_LAUNCH = 0.99;
+
 
 void State::draw() 
 
@@ -17,8 +19,6 @@ void State::draw()
   gpuProgram->activate();
 
   glUniformMatrix4fv( glGetUniformLocation( gpuProgram->id(), "M"), 1, GL_TRUE, &M[0][0] );
-
-  silos[0].draw( gpuProgram );
   
   for (i=0; i<silos.size(); i++)
     silos[i].draw( gpuProgram );
@@ -38,7 +38,6 @@ void State::draw()
   gpuProgram->deactivate();
 }
 
-
 // Update the state of the world after some time interval, deltaT
 //
 // CHANGE ALL OF THIS FUNCTION
@@ -47,6 +46,9 @@ void State::draw()
 void State::updateState( float deltaT )
 
 {
+  if(silos.size() == 0){
+     PROB_OF_LAUNCH = 1;
+  }
   int i;
 
   // Update the time
@@ -58,12 +60,22 @@ void State::updateState( float deltaT )
   //
   // CHANGE THIS
 
-  if (randIn01() > 0.99) {	// New missile 
-
-    missilesIn.add( Missile( vec3( randIn01(), worldTop, 0), // source
-			     vec3( -0.02, -0.1, 0 ),         // velocity
+  if (randIn01() > PROB_OF_LAUNCH) {	// New missile 
+    
+    float sourceX = randIn01();
+    vec3 source = vec3( sourceX, worldTop, 0);
+    float v = (randIn01()-0.5)/(float)20;
+    if((sourceX < 0.2 && v < 0) || (sourceX > 0.8 && v > 0)){
+        v = v*-1;
+    }
+    missilesIn.add( Missile( source, // source
+			     (vec3( v, -0.1, 0 )),         // velocity
 			     0,                              // destination y
 			     vec3( 1,1,0 ) ) );              // colour
+    
+    if(PROB_OF_LAUNCH > .95){
+        PROB_OF_LAUNCH -= PROB_OF_LAUNCH/1000;
+    }
   }
 
   // Look for terminating missiles
@@ -71,6 +83,8 @@ void State::updateState( float deltaT )
   for (i=0; i<missilesIn.size(); i++)
     if (missilesIn[i].hasReachedDestination()) {
       // CHANGE THIS: ADD AN EXPLOSION
+
+      explosions.add(Circle(missilesIn[i].position(), 0.1, 0.03, vec3(1, 0, 0)));
       missilesIn.remove(i);
       i--;
     }
@@ -78,6 +92,7 @@ void State::updateState( float deltaT )
   for (i=0; i<missilesOut.size(); i++)
     if (missilesOut[i].hasReachedDestination()) {
       // CHANGE THIS: ADD AN EXPLOSION
+      explosions.add(Circle(missilesOut[i].position(), 0.1, 0.05, vec3(1, 0.5, 0)));
       missilesOut.remove(i);
       i--;
     }
@@ -87,6 +102,23 @@ void State::updateState( float deltaT )
   for (i=0; i<explosions.size(); i++)
     if (explosions[i].radius() >= explosions[i].maxRadius()) {
       // CHANGE THIS: CHECK FOR DESTROYED CITY OR SILO
+      for (int cityInd=0; cityInd<cities.size(); cityInd++) {
+        if (cities[cityInd].isHit(explosions[i].getPos(), explosions[i].radius())) {
+          cities.remove(cityInd);
+        }
+      }
+
+      for (int siloInd=0; siloInd<silos.size(); siloInd++) {
+        if ((silos[siloInd].position() - explosions[i].getPos()).length() <= explosions[i].radius()) {
+          silos.remove(siloInd);
+        }
+      }
+
+      for (int missileInd=0; missileInd<missilesIn.size(); missileInd++) {
+        if ((missilesIn[missileInd].position() - explosions[i].getPos()).length() <= explosions[i].radius()) {
+          missilesIn.remove(missileInd);
+        }
+      }
       explosions.remove(i);
       i--;
     }
@@ -116,14 +148,13 @@ void State::fireMissile( int siloIndex, float x, float y )
 {
   const float speed = 0.3;
     
-  if (silos[siloIndex].canShoot()) {
+  if (siloIndex < silos.size() && silos[siloIndex].canShoot()) {
 
     silos[siloIndex].decrMissiles();
 
     // CHANGE THIS
-
     missilesOut.add( Missile( silos[siloIndex].position(),           // source
-			      speed * (vec3(x,y,0) - silos[siloIndex].position()).normalize(), // velocity
+			      speed * (vec3(x,y,0) - silos[siloIndex].position()), // velocity
 			      y,		                     // destination y
 			      vec3( 0,1,1 ) ) );                     // colour
   }

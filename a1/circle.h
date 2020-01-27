@@ -60,6 +60,10 @@ class Circle {
     return maxR;
   }
 
+  vec3 getPos() {
+    return pos;
+  }
+
  private:
 
   GLuint VAO;

@@ -63,10 +63,11 @@ void mouseButtonCallback( GLFWwindow* window, int button, int action, int mods )
 
     // Calculate the world coordinates of mouse (x,y)
 
-    float ratioHeight = (worldTop - WORLD_BOTTOM) / WINDOW_WIDTH;
-    float ratioWidth = (WORLD_RIGHT - WORLD_LEFT) / WINDOW_HEIGHT;
-    float wx = ratioWidth * x;
-    float wy = ratioHeight * y;
+    float height = worldTop - WORLD_BOTTOM;
+    float width = WORLD_RIGHT - WORLD_LEFT;
+    
+    float wx = ((x-12)/(float)WINDOW_WIDTH) * width;
+    float wy = (1 - (y + 10)/(float)WINDOW_HEIGHT) * height;
 
     // Shoot from silo 0, 1, or 2
 
