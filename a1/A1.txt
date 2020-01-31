@@ -69,7 +69,7 @@ Modify the code as follows:
     - Or anything else you think would be interesting and similarly
       challenging to the suggestions above.
 
-6. Your submitted code must work on the CasLab Linux machines.  
+6. Your submitted code must work on the CasLab Linux machines.
    Put all those code into a directory called a1.  Include
 
      *.cpp
