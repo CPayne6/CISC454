@@ -119,8 +119,11 @@ void State::updateState( float deltaT )
           missilesIn.remove(missileInd);
         }
       }
-      explosions.remove(i);
+      explosions[i].implode();
       i--;
+    }
+    else if(explosions[i].canRemove()){
+      explosions.remove(i);
     }
 
   // Look for incoming missiles that hit an explosion and are
@@ -150,9 +153,12 @@ void State::fireMissile( int siloIndex, float x, float y )
     
   if (siloIndex < silos.size() && silos[siloIndex].canShoot()) {
 
-    silos[siloIndex].decrMissiles();
-
     // CHANGE THIS
+
+    silos[siloIndex].decrMissiles();
+    silos[siloIndex].changeBarrel(vec3(x,y,0));
+
+    
     missilesOut.add( Missile( silos[siloIndex].position(),           // source
 			      speed * (vec3(x,y,0) - silos[siloIndex].position()), // velocity
 			      y,		                     // destination y

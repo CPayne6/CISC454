@@ -17,7 +17,7 @@ class Silo : public Building {
   Silo() {}
 
   Silo( vec3 pos ) : Building( pos ) {
-
+    
     roundsLeft = 15;
   }
 
@@ -31,6 +31,16 @@ class Silo : public Building {
 
   vec3 position() {
     return pos;
+  }
+
+  void changeBarrel(vec3 newTarget){
+    vec3 dist = (newTarget - pos);
+    float len = sqrt((double)(dist.x*dist.x) + (dist.y*dist.y));
+    cout << "distance: " << len << endl;
+    float shorten = 1 / (len * 15);
+    barrelAim =  pos + shorten * dist;
+
+    cout << "Barrel Direction: " << barrelAim.x << "," << barrelAim.y << endl;
   }
 
   // Draw the silo
@@ -48,6 +58,11 @@ class Silo : public Building {
       verts[i+1] = vec3( pos.x + 0.04 * cos(theta), pos.y + 0.04 * sin(theta), 0 );
     }
 
+    vec3 verts2[2] = {
+      pos,barrelAim
+    };
+
+    gpuProgram->drawVertices( &verts2[0], 3, GL_LINES, vec3(1,1,1) );
     gpuProgram->drawVertices( verts, NUM_SEGMENTS+1, GL_TRIANGLE_FAN, vec3(1,1,1) );
 
     delete [] verts;
@@ -56,6 +71,7 @@ class Silo : public Building {
  private:
 
   int roundsLeft;
+  vec3 barrelAim;
 };
   
 

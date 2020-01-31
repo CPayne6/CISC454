@@ -27,9 +27,9 @@ class Missile {
   // Draw the missile and its trail
 
   void draw( GPUProgram *gpuProgram) {
-
+    //-vec3(pos0.x,pos0.y,0)).normalize()
     vec3 verts[2] = {
-      (vec3( pos1.x, pos1.y, 0 )-vec3(pos0.x,pos0.y,0)).normalize(),
+      vec3( pos0.x, pos0.y, 0 ),
       vec3( pos1.x, pos1.y, 0 )
     };
 
@@ -40,6 +40,10 @@ class Missile {
 
   void move( float deltaT ) {
     pos1 = pos1 + deltaT * velocity;
+    float dist = sqrt((pos1.x-pos0.x)*(pos1.x-pos0.x)+(pos1.y-pos0.y)*(pos1.y-pos0.y));
+    if(dist >= 0.1){
+       pos0 = pos0 + deltaT * velocity;
+    }
   }
 
   // Return the current position 

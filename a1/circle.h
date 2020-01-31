@@ -22,6 +22,7 @@ class Circle {
     maxR = maxRad;
     speed = s;
     colour = c;
+    imploding = false;
   }
 
   // Draw the circle
@@ -47,7 +48,16 @@ class Circle {
   // Expand the circle over a time interval, deltaT
 
   void expand( float deltaT ) {
-    r = r + deltaT * speed;
+    if(imploding){
+      r = r - deltaT * speed;
+    }
+    else{
+      r = r + deltaT * speed;
+    }
+  }
+
+  void implode(){
+    imploding = true;
   }
 
   // Return the current and max radii
@@ -60,6 +70,10 @@ class Circle {
     return maxR;
   }
 
+  bool canRemove() {
+    return r < 0;
+  }
+
   vec3 getPos() {
     return pos;
   }
@@ -68,11 +82,13 @@ class Circle {
 
   GLuint VAO;
   
+  
   vec3  pos;			// centre
   float r;			// current radius
   float maxR;			// maximum radius
   float speed;			// speed at which radius increases
   vec3  colour;		// colour of circle
+  bool imploding;
 };
 
 
