@@ -1,0 +1,34 @@
+LDFLAGS  = glad/src/glad.o -Llib32 -lglfw -lGL -ldl
+CXXFLAGS = -g -Wall -Wno-write-strings -Wno-parentheses -DLINUX
+
+PROG = hier
+
+OBJS = hier.o gpuProgram.o linalg.o axes.o object.o cylinder.o rectangle.o
+
+hier:  $(OBJS)
+	$(CXX) $(CXXFLAGS) -o $(PROG) $(OBJS) $(LDFLAGS) 
+
+clean:
+	rm -f *.o *~ $(PROG)
+
+depend:	
+	makedepend -Y *.cpp *.C *.h
+
+# DO NOT DELETE
+
+axes.o: headers.h axes.h linalg.h gpuProgram.h
+cylinder.o: cylinder.h geometry.h headers.h linalg.h
+gpuProgram.o: gpuProgram.h headers.h
+hier.o: headers.h gpuProgram.h linalg.h link.h object.h geometry.h cylinder.h
+hier.o: axes.h
+linalg.o: linalg.h
+object.o: object.h linalg.h geometry.h headers.h
+sphere.o: sphere.h linalg.h seq.h headers.h gpuProgram.h
+axes.o: linalg.h gpuProgram.h headers.h
+cylinder.o: geometry.h headers.h linalg.h
+geometry.o: headers.h linalg.h
+gpuProgram.o: headers.h
+link.o: linalg.h object.h geometry.h headers.h cylinder.h
+object.o: linalg.h geometry.h headers.h
+seq.o: headers.h
+sphere.o: linalg.h seq.h headers.h gpuProgram.h

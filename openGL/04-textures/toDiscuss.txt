@@ -1,0 +1,54 @@
+Intro to Texture Mapping
+------------------------
+
+
+Definitions
+
+ texture map = 1D, 2D, 3D array of "texels"
+ texel = 1, 2, 3, 4 values, typically RGB or RGBA
+ texel coordinates are in [0,1] in each dimension, even if texmap is not square  
+
+In OpenGL
+
+  stored as a 1D array of texels, even if 2D or 3D
+
+  number of texels in each dimension is known
+     = width, height in 2D
+
+  OpenGL assigns an identifier (an int) to each texture map
+
+  See wfMaterial::storeTexture() to register texture with OpenGL
+  See wfMaterial::setMaterial() to pass texture to shaders
+
+Code
+
+  data
+    cube.obj
+    cube.mtl - texture map
+    *.ppm textures
+
+  wavefront.h
+    material
+      textureID
+      texmap/width/height
+
+  wavefront.cpp
+     storeTexture()
+     setMateral()
+
+  wavefront.vert
+    attributes
+
+  wavefront.frag
+    texture coords
+    texture colour
+    phong shading using texture as Kd
+
+    - add ambient colour to texture
+
+    - decal texture over base colour (base = 4/255 and 0/255)
+
+    - modulate base colour with texture (and modify Kd in data/cube.mtl)
+
+    - tile texture (see wavefront.cpp storeTexture())
+

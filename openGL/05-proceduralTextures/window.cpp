@@ -1,0 +1,45 @@
+/* window.C
+ */
+
+
+#include "headers.h"
+#include "window.h"
+
+
+#define MAX_NUM_WINDOWS 20
+
+
+static window * windows[ MAX_NUM_WINDOWS ];
+
+
+void window::registerWindow( int windowId )
+
+{
+  if (windowId < 0 || windowId >= MAX_NUM_WINDOWS) {
+    cerr << "New window has windowId " << windowId
+	 << ", which is outside the allowed range 0.." << MAX_NUM_WINDOWS-1 << endl;
+    abort();
+  }
+  windows[ windowId ] = this;
+}
+
+
+void GLUTdisplay() {
+  windows[ glutGetWindow() ]->display();
+}
+
+void GLUTreshape( int x, int y ) {
+  windows[ glutGetWindow() ]->reshape( x, y );
+}
+
+void GLUTmouseAction( int button, int state, int x, int y ) {
+  windows[ glutGetWindow() ]->mouseAction( button, state, x, y );
+}
+
+void GLUTmouseMotion( int x, int y ) {
+  windows[ glutGetWindow() ]->mouseMotion( x, y );
+}
+
+void GLUTkeyAction( unsigned char c, int x, int y ) {
+  windows[ glutGetWindow() ]->keyAction( c, x, y );
+}
