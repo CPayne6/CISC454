@@ -22,12 +22,13 @@ in vec2 texCoords;     // fragment texture coordinates (if provided)
 
 out vec4 fragColour;   // fragment's final colour
 
-
 void main()
 
 {
+  // Set the colour of the fragment (used to simplify texture proccess)
+  vec3 color = (texturing)?(texture(objTexture, texCoords).rgb):(colour);
   // Calculate the position of this fragment in the light's CCS.
-
+  
   vec4 ccsLightPos = WCS_to_lightCCS * vec4(wcsPosition, 1.0f); // CHANGE THIS
 
   // Calculate the depth of this fragment in the light's CCS in the range [0,1]
@@ -42,36 +43,40 @@ void main()
 
   // Look up the depth from the light in the shadowBuffer texture.
 
-  float shadowDepth = 0.5; // CHANGE THIS
-  
-  vec3 tmpColour = colour;
+  float shadowDepth = 0.25; // CHANGE THIS
 
   // Determine whether the fragment is in shadow.
   //
   // If results look bad, add a bit to the shadow texture depth to
   // prevent z-fighting.
 
-  // YOUR CODE HERE
-  mediump float NdotL = dot( normalize(normal), lightDir );
-  if (NdotL < 0.0){  // For light behind the surface, there is no illumination
-    NdotL = 0.0;
-  }
+  vec3 projCoords = ccsLightPos.xyz;
+
+  projCoords = projCoords * 0.5 + 0.5;
+  float closestDepth = texture(shadowBuffer, projCoords.xy).r; 
+  float currDepth = projCoords.z;
+  float bias = 0.005;
+  float shadow = currDepth - bias > closestDepth  ? 1.0 : 0.0;
+  if(projCoords.z > 1.0)
+    shadow = 0.0;
 
   // Compute illumination.  Initially just do diffuse "N dot L".  Later do Phong.
-
-  mediump vec3 diffuseColour = NdotL * colour;// YOUR CODE HERE
+  vec3 lightColor = vec3(0.5);
+  // ambient
+  vec3 ambient = 0.2 * color;
+  // diffuse
+  float diff = 0.1 * max(dot(lightDir, normal), 0.0); //set to 0 if negative
+  vec3 diffuse = diff * lightColor;
 
   // Choose the colour either from the object's texture (if
   // 'texturing' == 1) or from the input colour.
-
+  
+  // This is handled at the beginning of the function***
+  
   // YOUR CODE HERE
-  if(texturing){
-    fragColour = texture(objTexture, texCoords);
-  }else{
-
   // Output the fragment colour, modified by the illumination model
   // and shadowing.
-  
-  fragColour = vec4( diffuseColour, 1.0 );	// CHANGE THIS
-}
+
+  vec3 lighting = (ambient + (1.0 - shadow) * (diffuse)) * color;
+  fragColour = vec4( lighting, 1.0 );	// CHANGE THIS
 }
